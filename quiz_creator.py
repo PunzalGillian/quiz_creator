@@ -1,15 +1,4 @@
-"""
-Quiz Creator - A program that allows users to create quizzes with multiple choice questions.
-
-This script prompts the user for:
-- Quiz name
-- Questions
-- Multiple choice options (a, b, c, d)
-- Correct answers
-The quiz is saved to a text file with the quiz name.
-"""
-
-# Ask user for a quiz name
+# As the user for a quiz name
 quiz_name = input("Enter the name of the quiz: ")
 quiz_file = f"{quiz_name}.txt"
 
