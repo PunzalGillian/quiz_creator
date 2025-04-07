@@ -1,21 +1,16 @@
 # Ask user for a quiz name
-
 # Loop while user wants to add questions
-    # Ask user to enter the question
-    # Ask user to enter choice for option a
-    # Ask user to enter choice for option b
-    # Ask user to enter choice for option c
-    # Ask user to enter choice for option d
-
-    # Ask user to enter the correct answer (a, b, c, or d)
-    # Validate the correct answer (must be a/b/c/d only)
-
-    # Format and combine the question, options, and correct answer into a question block
-    # Write the question block to the quiz file
-
-    # Ask user if they want to add another question (yes/no)
-    # If no, break the loop
-
+# Ask user to enter the question
+# Ask user to enter choice for option a
+# Ask user to enter choice for option b
+# Ask user to enter choice for option c
+# Ask user to enter choice for option d
+# Ask user to enter the correct answer (a, b, c, or d)
+# Validate the correct answer (must be a/b/c/d only)
+# Format and combine the question, options, and correct answer into a question block
+# Write the question block to the quiz file
+# Ask user if they want to add another question (yes/no)
+# If no, break the loop
 # Print a message indicating the quiz has been saved
 # End program
 
@@ -33,7 +28,7 @@ while True:
     option_d = input("Enter answer d: ")
 
     while True: 
-        correct_answer = input("ENter the correct answer (a/b/c/d): ").lower()
+        correct_answer = input("Enter the correct answer (a/b/c/d): ").lower()
         if correct_answer in ["a", "b", "c", "d"]:
             break
         else:
@@ -54,4 +49,10 @@ while True:
     
 print("Saving quiz...")
 
-            
+# Write questions to the file
+with open(quiz_file, "w") as file:
+    for question in questions:
+        file.write(question)
+
+print(f"Quiz has been saved successfully as '{quiz_file}'.")
+
