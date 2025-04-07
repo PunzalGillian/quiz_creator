@@ -22,6 +22,8 @@
 quiz_name = input("Enter the name of the quiz: ")
 quiz_file = f"{quiz_name}.txt"
 
+questions = []
+
 while True:
     question = input("Enter the question: ")
     
@@ -36,5 +38,20 @@ while True:
             break
         else:
             print("Please enter a valid answer (a/b/c/d)")
+
+    question_block = f"{question}\n" 
+    question_block += f"a) {option_a}\n" 
+    question_block += f"b) {option_b}\n" 
+    question_block += f"c) {option_c}\n" 
+    question_block += f"d) {option_d}\n" 
+    question_block += f"Correct answer: {correct_answer}\n\n"
+
+    questions.append(question_block)
+
+    continue_choice = input("Do you want to add another question? (Y/N): ").upper()
+    if continue_choice != "Y":
+        break
+    
+print("Saving quiz...")
 
             
