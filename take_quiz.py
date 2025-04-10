@@ -31,7 +31,7 @@
     # If yes, reset score and restart quiz
     # If no, exit program
 
-quiz_name = input("Enter the name of the quiz to take: ")
+quiz_name = input("\nEnter the name of the quiz to take: ")
 quiz_file = f"{quiz_name}.txt"
 
 try:
@@ -66,12 +66,13 @@ print(f"\nStarting quiz: {quiz_name}...\n")
 
 for count, question in enumerate(parsed_questions, 1):
     print(f"Question {count}: {question['question']}")
+    print()
 
     for option in question["options"]:
-        print(option)
+        print(f"\t{option}")
 
     while True:
-        user_answer = input("Your answer: ").lower()
+        user_answer = input("\nYour answer: ").lower()
         if user_answer in ["a", "b", "c", "d"]:
             break
         else:

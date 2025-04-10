@@ -1,15 +1,15 @@
 # As the user for a quiz name
-quiz_name = input("Enter the name of the quiz: ")
+quiz_name = input("\nEnter the name of the quiz: ")
 quiz_file = f"{quiz_name}.txt"
 
 questions = []
 
 while True:
-    question = input("Enter the question: ")
-    option_a = input("Enter answer a: ")
-    option_b = input("Enter answer b: ")
-    option_c = input("Enter answer c: ")
-    option_d = input("Enter answer d: ")
+    question = input("\nEnter the question: ")
+    option_a = input("\n\tEnter answer a: ")
+    option_b = input("\tEnter answer b: ")
+    option_c = input("\tEnter answer c: ")
+    option_d = input("\tEnter answer d: ")
 
     # Validate correct answer input
     while True:
@@ -28,7 +28,7 @@ while True:
     question_block += f"Correct answer: {correct_answer}\n\n"
     questions.append(question_block)
 
-    continue_choice = input("Do you want to add another question? (Y/N): ").upper()
+    continue_choice = input("\nDo you want to add another question? (Y/N): ").upper()
     if continue_choice != "Y":
         break
 
