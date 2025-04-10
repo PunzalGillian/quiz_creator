@@ -3,6 +3,9 @@ from pydantic import BaseModel
 from typing import List, Dict, Optional
 import os
 import uvicorn
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI(title="Quiz API", description="API for creating and taking quizzes")
 
@@ -252,4 +255,9 @@ if __name__ == "__main__":
     port = int(os.getenv("PORT", "8000"))
     debug = os.getenv("DEBUG", "False").lower() == "true"
     
-    uvicorn.run("app.quiz_controller:app", host=host, port=port, reload=debug)
+    # Use the correct import path based on where you run it from
+    import sys
+    if os.path.basename(os.getcwd()) == "backend":
+        uvicorn.run("app.quiz_controller:app", host=host, port=port, reload=debug)
+    else:
+        uvicorn.run("backend.app.quiz_controller:app", host=host, port=port, reload=debug)
