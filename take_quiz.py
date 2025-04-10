@@ -36,7 +36,7 @@ quiz_file = f"{quiz_name}.txt"
 
 try:
     with open(quiz_file, "r") as file:
-        lines = file.read()
+        content = file.read()
 except FileNotFoundError:
     print(f"Error: The file '{quiz_file}' cannot be found")
     exit()
@@ -44,5 +44,21 @@ except FileNotFoundError:
 parsed_questions = []
 score = 0
 
-question_blocks = content.strp().split("\n\n")
+question_blocks = content.strip().split("\n\n")
+
+for block in question_blocks:
+    lines = block.strip().split("\n")
+
+    question = lines[0]
+    options = lines[1:5]
+
+    correct_line = lines[5]
+    correct_answer = correct_line.split(": ")[1].strip()
+
+    parsed_questions.append({
+        "question": question,
+        "options": options,
+        "correct_answer": correct_answer
+    })
+
 
