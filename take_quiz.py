@@ -30,3 +30,14 @@
 # Ask if user wants to take quiz again
     # If yes, reset score and restart quiz
     # If no, exit program
+
+quiz_name = input("Enter the name of the quiz to take: ")
+quiz_file = f"{quiz_name}.txt"
+
+try:
+    with open(quiz_file, "r") as file:
+        lines = file.read()
+except FileNotFoundError:
+    print(f"Error: The file '{quiz_file}' cannot be found")
+    exit()
+
