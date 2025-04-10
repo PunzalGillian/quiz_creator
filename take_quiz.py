@@ -41,3 +41,8 @@ except FileNotFoundError:
     print(f"Error: The file '{quiz_file}' cannot be found")
     exit()
 
+parsed_questions = []
+score = 0
+
+question_blocks = content.strp().split("\n\n")
+
