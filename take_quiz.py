@@ -61,4 +61,12 @@ for block in question_blocks:
         "correct_answer": correct_answer
     })
 
+total_questions = len(parsed_questions)
+print(f"\nStarting quiz: {quiz_name}...\n")
+
+for count, question in enumerate(parsed_questions, 1):
+    print(f"Question {count}: {question['question']}")
+
+    for option in question["options"]:
+        print(option)
 
