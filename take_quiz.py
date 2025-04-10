@@ -71,9 +71,15 @@ for count, question in enumerate(parsed_questions, 1):
         print(option)
 
     while True:
-        user_answer = input("Your answer (a/b/c/d): ").lower()
+        user_answer = input("Your answer: ").lower()
         if user_answer in ["a", "b", "c", "d"]:
             break
         else:
             print("Please enter a valid answer (a/b/c/d)")
 
+    if user_answer == question["correct_answer"]:
+        score += 1
+        print("Correct!!!\n")
+    else:
+        print("Incorrect!. The answer is:", question["correct_answer"])
+    print()
