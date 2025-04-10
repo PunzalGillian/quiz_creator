@@ -83,3 +83,16 @@ for count, question in enumerate(parsed_questions, 1):
     else:
         print("Incorrect!. The answer is:", question["correct_answer"])
     print()
+
+print("\nQuiz completed!\n")
+print(f"You scored {score}/{total_questions} questions.\n")
+print("Thank you for taking the quiz!")
+
+
+take_again = input("Do you want to take the quiz again? (Y/N): ").upper()
+if take_again == "Y":
+    score = 0
+    print("Restarting the quiz........")
+    # Restart the quiz logic here if needed
+else:
+    print("Exiting the quiz. Goodbye!")
