@@ -4,20 +4,15 @@ import os
 from dotenv import load_dotenv
 from .routes.quizzes import router as quiz_router
 from motor.motor_asyncio import AsyncIOMotorClient
+from contextlib import asynccontextmanager
 
 # Load environment variables from .env file
 load_dotenv()
 
-# Create FastAPI app
-app = FastAPI(
-    title="Quiz API",
-    description="API for creating and taking quizzes",
-    version="1.0.0",
-)
-
-# MongoDB connection
-@app.on_event("startup")
-async def startup_db_client():
+# Define lifespan context manager
+@asynccontextmanager
+async def lifespan(app):
+    # Startup code (runs before app starts)
     app.mongodb_client = AsyncIOMotorClient(os.getenv("MONGODB_URL", "mongodb://localhost:27017"))
     app.mongodb = app.mongodb_client[os.getenv("DB_NAME", "quizzes_db")]
     
@@ -25,11 +20,20 @@ async def startup_db_client():
     await app.mongodb.quizzes.create_index("quiz_name", unique=True)
     
     print("Connected to MongoDB!")
-
-@app.on_event("shutdown")
-async def shutdown_db_client():
+    
+    yield  # App runs here
+    
+    # Shutdown code (runs after app stops)
     app.mongodb_client.close()
     print("MongoDB connection closed")
+
+# Create FastAPI app with lifespan
+app = FastAPI(
+    title="Quiz API",
+    description="API for creating and taking quizzes",
+    version="1.0.0",
+    lifespan=lifespan
+)
 
 # Include routers
 app.include_router(quiz_router)
