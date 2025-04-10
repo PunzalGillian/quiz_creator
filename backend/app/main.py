@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from .routes.quizzes import router as quiz_router
 from motor.motor_asyncio import AsyncIOMotorClient
 from contextlib import asynccontextmanager
+from fastapi.middleware.cors import CORSMiddleware
 
 # Load environment variables from .env file
 load_dotenv()
@@ -12,20 +13,27 @@ load_dotenv()
 # Define lifespan context manager
 @asynccontextmanager
 async def lifespan(app):
-    # Startup code (runs before app starts)
-    app.mongodb_client = AsyncIOMotorClient(os.getenv("MONGODB_URL", "mongodb://localhost:27017"))
-    app.mongodb = app.mongodb_client[os.getenv("DB_NAME", "quizzes_db")]
+    try:
+        app.mongodb_client = AsyncIOMotorClient(
+            os.getenv("MONGODB_URL", "mongodb://localhost:27017"),
+            serverSelectionTimeoutMS=5000  # Add timeout
+        )
+        # Test connection
+        await app.mongodb_client.admin.command('ping')
+        app.mongodb = app.mongodb_client[os.getenv("DB_NAME", "quizzes_db")]
+        await app.mongodb.quizzes.create_index("quiz_name", unique=True)
+        print("Connected to MongoDB!")
+    except Exception as e:
+        print(f"MongoDB connection error: {e}")
+        # Still allow the app to start without MongoDB
+        app.mongodb_client = None
+        app.mongodb = None
     
-    # Create an index on quiz_name for faster lookups
-    await app.mongodb.quizzes.create_index("quiz_name", unique=True)
+    yield
     
-    print("Connected to MongoDB!")
-    
-    yield  # App runs here
-    
-    # Shutdown code (runs after app stops)
-    app.mongodb_client.close()
-    print("MongoDB connection closed")
+    if app.mongodb_client:
+        app.mongodb_client.close()
+        print("MongoDB connection closed")
 
 # Create FastAPI app with lifespan
 app = FastAPI(
@@ -33,6 +41,18 @@ app = FastAPI(
     description="API for creating and taking quizzes",
     version="1.0.0",
     lifespan=lifespan
+)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "https://your-frontend-url.onrender.com"  # Add your frontend URL
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Include routers
@@ -50,6 +70,12 @@ async def root():
             "DELETE /quizzes/{quiz_name}": "Delete a quiz"
         }
     }
+
+@app.get("/health")
+async def health_check():
+    # Check if MongoDB is connected
+    is_db_connected = hasattr(app, "mongodb_client") and app.mongodb_client is not None
+    return {"status": "healthy", "database_connected": is_db_connected}
 
 if __name__ == "__main__":
     host = os.getenv("HOST", "0.0.0.0")
