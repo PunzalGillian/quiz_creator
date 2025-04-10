@@ -2,7 +2,13 @@ import os
 from fastapi import APIRouter, HTTPException
 from typing import List
 from ..models import QuizCreate, QuizInfo, QuizSubmission, QuizResult
-from ..utils import save_quiz, load_quiz, QUIZ_DIR
+from ..database import (
+    get_all_quizzes, 
+    get_quiz, 
+    save_quiz_to_db,
+    delete_quiz_from_db
+)
+from bson import ObjectId
 
 router = APIRouter(
     prefix="/quizzes",
@@ -13,18 +19,14 @@ router = APIRouter(
 @router.get("/", response_model=List[QuizInfo])
 async def list_quizzes():
     """Get a list of all available quizzes"""
-    quizzes = []
-    
-    for filename in os.listdir(QUIZ_DIR):
-        if filename.endswith('.txt'):
-            quiz_name = filename[:-4]  # Remove .txt extension
-            questions = load_quiz(quiz_name)
-            quizzes.append({
-                "quiz_name": quiz_name,
-                "total_questions": len(questions) if questions else 0
-            })
-    
-    return quizzes
+    quizzes = await get_all_quizzes()
+    return [
+        {
+            "quiz_name": quiz["quiz_name"],
+            "total_questions": len(quiz.get("questions", [])) 
+        }
+        for quiz in quizzes if quiz
+    ]
 
 @router.post("/", status_code=201)
 async def create_quiz(quiz: QuizCreate):
@@ -32,8 +34,8 @@ async def create_quiz(quiz: QuizCreate):
     quiz_name = quiz.quiz_name
     
     # Check if quiz already exists
-    quiz_path = os.path.join(QUIZ_DIR, f"{quiz_name}.txt")
-    if os.path.exists(quiz_path):
+    existing_quiz = await get_quiz(quiz_name)
+    if existing_quiz:
         raise HTTPException(status_code=409, detail=f"Quiz '{quiz_name}' already exists")
     
     # Validate correct_answer is a, b, c, or d
@@ -44,42 +46,48 @@ async def create_quiz(quiz: QuizCreate):
                 detail=f"Question {i+1}: correct_answer must be one of: a, b, c, d"
             )
     
-    # Save the quiz
-    quiz_file = save_quiz(quiz_name, quiz.questions)
+    # Save the quiz to MongoDB
+    quiz_data = quiz.dict()
+    inserted_id = await save_quiz_to_db(quiz_data)
     
     return {
         "message": f"Quiz '{quiz_name}' created successfully",
-        "filename": quiz_file
+        "id": str(inserted_id)
     }
 
 @router.get("/{quiz_name}")
-async def get_quiz(quiz_name: str):
+async def get_quiz_by_name(quiz_name: str):
     """Get a specific quiz (without correct answers)"""
-    questions = load_quiz(quiz_name)
+    quiz = await get_quiz(quiz_name)
     
-    if questions is None:
+    if not quiz:
         raise HTTPException(status_code=404, detail=f"Quiz '{quiz_name}' not found")
     
-    # Remove correct answers before sending to client
-    for question in questions:
-        del question["correct_answer"]
+    # Create a copy of the questions without correct answers
+    questions_for_client = []
+    for q in quiz["questions"]:
+        # Create a copy of the question without correct_answer
+        q_copy = {k: v for k, v in q.items() if k != "correct_answer"}
+        questions_for_client.append(q_copy)
     
     return {
-        "quiz_name": quiz_name,
-        "questions": questions,
-        "total_questions": len(questions)
+        "quiz_name": quiz["quiz_name"],
+        "questions": questions_for_client,
+        "total_questions": len(questions_for_client)
     }
 
 @router.post("/{quiz_name}/submit", response_model=QuizResult)
 async def submit_quiz(quiz_name: str, submission: QuizSubmission):
     """Submit answers for a quiz and get results"""
-    questions = load_quiz(quiz_name)
+    quiz = await get_quiz(quiz_name)
     
-    if questions is None:
+    if not quiz:
         raise HTTPException(status_code=404, detail=f"Quiz '{quiz_name}' not found")
     
     # Validate answers
     answers = submission.answers
+    questions = quiz["questions"]
+    
     if len(answers) != len(questions):
         raise HTTPException(
             status_code=400,
@@ -118,13 +126,14 @@ async def submit_quiz(quiz_name: str, submission: QuizSubmission):
 @router.delete("/{quiz_name}")
 async def delete_quiz(quiz_name: str):
     """Delete a quiz"""
-    quiz_path = os.path.join(QUIZ_DIR, f"{quiz_name}.txt")
-    
-    if not os.path.exists(quiz_path):
+    # Check if quiz exists
+    quiz = await get_quiz(quiz_name)
+    if not quiz:
         raise HTTPException(status_code=404, detail=f"Quiz '{quiz_name}' not found")
     
-    try:
-        os.remove(quiz_path)
+    # Delete the quiz
+    success = await delete_quiz_from_db(quiz_name)
+    if success:
         return {"message": f"Quiz '{quiz_name}' deleted successfully"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to delete quiz: {str(e)}")
+    else:
+        raise HTTPException(status_code=500, detail=f"Failed to delete quiz '{quiz_name}'")
