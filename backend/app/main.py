@@ -35,5 +35,6 @@ if __name__ == "__main__":
     port = int(os.getenv("PORT", "8000"))
     debug = os.getenv("DEBUG", "False").lower() == "true"
     
-    # Run the app
-    uvicorn.run("app.main:app", host=host, port=port, reload=debug)
+    # Run the app directly
+    import uvicorn
+    uvicorn.run(app, host=host, port=port, reload=debug)
