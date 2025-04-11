@@ -40,7 +40,7 @@ const QuizMakerPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/quizzes", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/quizzes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ quiz_name: quizName, questions }),
