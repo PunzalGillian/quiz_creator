@@ -1,30 +1,41 @@
+import os
+import sys
+import logging
+from motor.motor_asyncio import AsyncIOMotorClient
+from bson import ObjectId
+from dotenv import load_dotenv
 from fastapi import FastAPI
 import uvicorn
-import os
-from dotenv import load_dotenv
 from .routes.quizzes import router as quiz_router
-from motor.motor_asyncio import AsyncIOMotorClient
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 
-# Load environment variables from .env file
+# Configure logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
+# Load environment variables
 load_dotenv()
+
+# MongoDB connection settings
+MONGODB_URL = os.getenv("MONGODB_URL")
+DB_NAME = os.getenv("DB_NAME", "quizzes_db")
 
 # Define lifespan context manager
 @asynccontextmanager
 async def lifespan(app):
     try:
         app.mongodb_client = AsyncIOMotorClient(
-            os.getenv("MONGODB_URL", "mongodb://localhost:27017"),
+            MONGODB_URL or "mongodb://localhost:27017",
             serverSelectionTimeoutMS=5000  # Add timeout
         )
         # Test connection
         await app.mongodb_client.admin.command('ping')
-        app.mongodb = app.mongodb_client[os.getenv("DB_NAME", "quizzes_db")]
+        app.mongodb = app.mongodb_client[DB_NAME]
         await app.mongodb.quizzes.create_index("quiz_name", unique=True)
-        print("Connected to MongoDB!")
+        logger.info("Connected to MongoDB!")
     except Exception as e:
-        print(f"MongoDB connection error: {e}")
+        logger.error(f"MongoDB connection error: {e}")
         # Still allow the app to start without MongoDB
         app.mongodb_client = None
         app.mongodb = None
@@ -33,7 +44,7 @@ async def lifespan(app):
     
     if app.mongodb_client:
         app.mongodb_client.close()
-        print("MongoDB connection closed")
+        logger.info("MongoDB connection closed")
 
 # Create FastAPI app with lifespan
 app = FastAPI(

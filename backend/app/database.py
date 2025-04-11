@@ -1,18 +1,18 @@
-from motor.motor_asyncio import AsyncIOMotorClient
 import os
-from dotenv import load_dotenv
-import logging
 import sys
+import logging
+from motor.motor_asyncio import AsyncIOMotorClient
 from bson import ObjectId
+from dotenv import load_dotenv
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 # Load environment variables
 load_dotenv()
 
-# MongoDB connection settings - remove default fallback
+# MongoDB connection settings
 MONGODB_URL = os.getenv("MONGODB_URL")
 DB_NAME = os.getenv("DB_NAME", "quizzes_db")
 
@@ -74,8 +74,28 @@ async def delete_quiz_from_db(quiz_name):
 async def get_quiz_by_id(quiz_id):
     """Get a quiz by ID"""
     try:
+        logger.info(f"get_quiz_by_id called with ID: {quiz_id}")
         quiz_obj_id = ObjectId(quiz_id)
+        logger.info(f"ObjectId created: {quiz_obj_id}")
+        
         quiz = await quizzes_collection.find_one({"_id": quiz_obj_id})
+        logger.info(f"Quiz found: {quiz is not None}")
+        
+        if quiz:
+            quiz["id"] = str(quiz["_id"])
+        return quiz
+    except Exception as e:
+        logger.error(f"Error getting quiz by ID {quiz_id}: {e}")
+        # Print full stack trace for debugging
+        import traceback
+        logger.error(traceback.format_exc())
+        return None
+
+async def get_quiz_by_id_from_app(db, quiz_id):
+    """Get a quiz by ID using the app's MongoDB connection"""
+    try:
+        quiz_obj_id = ObjectId(quiz_id)
+        quiz = await db.quizzes.find_one({"_id": quiz_obj_id})
         if quiz:
             quiz["id"] = str(quiz["_id"])
         return quiz

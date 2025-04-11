@@ -85,25 +85,37 @@ async def get_quiz_by_name(quiz_name: str):
     }
 
 @router.get("/id/{quiz_id}")
-async def get_quiz_by_id_route(quiz_id: str):
+async def get_quiz_by_id_route(quiz_id: str, request: Request):
+    """Get a quiz by its ID"""
     try:
         # Try to convert to ObjectId to validate the format
         try:
             _ = ObjectId(quiz_id)
-        except Exception:
-            raise HTTPException(status_code=400, detail="Invalid quiz ID format")
+        except Exception as e:
+            logger.error(f"Invalid ObjectId format: {quiz_id}. Error: {str(e)}")
+            raise HTTPException(status_code=400, detail=f"Invalid quiz ID format: {quiz_id}")
             
-        # Use the function from database.py
-        quiz = await get_quiz_by_id(quiz_id)
+        # Access MongoDB from the request
+        if not request.app.mongodb:
+            logger.error("MongoDB not connected")
+            raise HTTPException(status_code=500, detail="Database not connected")
+            
+        # Use request.app.mongodb directly instead of the database helper
+        quiz_obj_id = ObjectId(quiz_id)
+        quiz = await request.app.mongodb.quizzes.find_one({"_id": quiz_obj_id})
         
         if not quiz:
+            logger.error(f"Quiz with ID {quiz_id} not found")
             raise HTTPException(status_code=404, detail=f"Quiz with ID {quiz_id} not found")
             
+        # Convert MongoDB ObjectId to string for JSON serialization
+        quiz["id"] = str(quiz["_id"])
+        
         return quiz
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error retrieving quiz: {e}")
+        logger.error(f"Error retrieving quiz: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error retrieving quiz: {str(e)}")
 
 @router.post("/{quiz_name}/submit", response_model=QuizResult)
