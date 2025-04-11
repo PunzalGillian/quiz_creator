@@ -1,119 +1,211 @@
-import React from "react";
+import React, { useState } from "react";
 
 const QuizMakerPage = () => {
+  const [quizName, setQuizName] = useState("");
+  const [questions, setQuestions] = useState([
+    {
+      question: "",
+      option_a: "",
+      option_b: "",
+      option_c: "",
+      option_d: "",
+      correct_answer: "",
+    },
+  ]);
+
+  // Handle quiz name change
+  const handleQuizNameChange = (e) => {
+    setQuizName(e.target.value);
+  };
+
+  // Handle changes to question fields
+  const handleQuestionChange = (index, field, value) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[index][field] = value;
+    setQuestions(updatedQuestions);
+  };
+
+  // Add a new question
+  const addQuestion = () => {
+    setQuestions([
+      ...questions,
+      {
+        question: "",
+        option_a: "",
+        option_b: "",
+        option_c: "",
+        option_d: "",
+        correct_answer: "",
+      },
+    ]);
+  };
+
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const quizData = {
+      quiz_name: quizName,
+      questions: questions,
+    };
+
+    console.log(quizData); // Replace with API call to save quiz
+    alert("Quiz created successfully!");
+  };
+
   return (
-    <div className="bg-transparent flex flex-row justify-center w-full">
-      <div className="w-[412px] h-[917px]">
-        <div className="h-[917px]">
-          <div className="w-[412px] h-[917px] bg-white">
-            <div className="relative h-[917px] bg-[#c3d5d4]">
-              <div className="w-[349px] h-[526px] top-[152px] absolute left-[31px]">
-                <div className="absolute w-[353px] h-[79px] top-0 left-0">
-                  <div className="relative w-[349px] h-[79px]">
-                    <div className="top-[30px] bg-[#efefef] rounded-[10px] absolute w-[349px] h-[49px] left-0" />
-
-                    <div className="absolute w-[306px] top-[43px] left-[17px] [font-family:'Inter-Regular',Helvetica] font-normal text-black text-xl tracking-[0] leading-[normal]">
-                      Enter Quiz Name:
-                    </div>
-
-                    <div className="absolute w-[302px] top-0 left-px [font-family:'Inter-Regular',Helvetica] font-normal text-black text-[21px] tracking-[0] leading-[normal]">
-                      Quiz Name:
-                    </div>
-                  </div>
-                </div>
-
-                <div className="absolute w-[353px] h-[77px] top-[94px] left-0">
-                  <div className="absolute w-[349px] h-[49px] top-7 left-0 bg-[#efefef] rounded-[10px]">
-                    <div className="absolute w-[306px] top-[13px] left-[17px] [font-family:'Inter-Regular',Helvetica] font-normal text-black text-xl tracking-[0] leading-[normal]">
-                      Enter a Question
-                    </div>
-                  </div>
-
-                  <div className="absolute w-[302px] top-0 left-px [font-family:'Inter-Regular',Helvetica] font-normal text-black text-[21px] tracking-[0] leading-[normal]">
-                    Add a Question:
-                  </div>
-                </div>
-
-                <div className="top-[186px] absolute w-[353px] h-[77px] left-0">
-                  <div className="absolute w-[349px] h-[49px] top-7 left-0 bg-[#efefef] rounded-[10px]">
-                    <div className="absolute w-[306px] top-[13px] left-[17px] [font-family:'Inter-Regular',Helvetica] font-normal text-black text-xl tracking-[0] leading-[normal]">
-                      Enter Option A:
-                    </div>
-                  </div>
-
-                  <div className="absolute w-[302px] top-0 left-px [font-family:'Inter-Regular',Helvetica] font-normal text-black text-[21px] tracking-[0] leading-[normal]">
-                    Option A:
-                  </div>
-                </div>
-
-                <div className="top-[273px] absolute w-[353px] h-[77px] left-0">
-                  <div className="absolute w-[349px] h-[49px] top-7 left-0 bg-[#efefef] rounded-[10px]">
-                    <div className="absolute w-[306px] top-[13px] left-[17px] [font-family:'Inter-Regular',Helvetica] font-normal text-black text-xl tracking-[0] leading-[normal]">
-                      Enter Option B:
-                    </div>
-                  </div>
-
-                  <div className="absolute w-[302px] top-0 left-px [font-family:'Inter-Regular',Helvetica] font-normal text-black text-[21px] tracking-[0] leading-[normal]">
-                    Option B:
-                  </div>
-                </div>
-
-                <div className="top-[362px] absolute w-[353px] h-[77px] left-0">
-                  <div className="absolute w-[349px] h-[49px] top-7 left-0 bg-[#efefef] rounded-[10px]">
-                    <div className="absolute w-[306px] top-[13px] left-[17px] [font-family:'Inter-Regular',Helvetica] font-normal text-black text-xl tracking-[0] leading-[normal]">
-                      Enter Option C:
-                    </div>
-                  </div>
-
-                  <div className="absolute w-[302px] top-0 left-px [font-family:'Inter-Regular',Helvetica] font-normal text-black text-[21px] tracking-[0] leading-[normal]">
-                    Option C:
-                  </div>
-                </div>
-
-                <div className="top-[449px] absolute w-[353px] h-[77px] left-0">
-                  <div className="absolute w-[349px] h-[49px] top-7 left-0 bg-[#efefef] rounded-[10px]">
-                    <div className="absolute w-[306px] top-[13px] left-[17px] [font-family:'Inter-Regular',Helvetica] font-normal text-black text-xl tracking-[0] leading-[normal]">
-                      Enter Option D:
-                    </div>
-                  </div>
-
-                  <div className="absolute w-[302px] top-0 left-px [font-family:'Inter-Regular',Helvetica] font-normal text-black text-[21px] tracking-[0] leading-[normal]">
-                    Option D:
-                  </div>
-                </div>
-              </div>
-
-              <div className="absolute top-[92px] left-[111px] [font-family:'Inter-Bold',Helvetica] font-bold text-black text-3xl tracking-[0] leading-[normal] whitespace-nowrap">
-                QUIZ MAKER
-              </div>
-
-              <div className="w-[351px] h-[53px] top-[708px] absolute left-[31px]">
-                <div className="relative w-[349px] h-[53px]">
-                  <img
-                    className="top-1 absolute w-[349px] h-[49px] left-0"
-                    alt="Rectangle"
-                    src={rectangle4}
-                  />
-
-                  <div className="absolute w-[49px] top-0 left-36 [font-family:'Inter-Light',Helvetica] font-light text-black text-[42px] text-center tracking-[0] leading-[normal]">
-                    +
-                  </div>
-                </div>
-              </div>
-
-              <div className="w-[351px] h-[49px] top-[781px] absolute left-[31px]">
-                <div className="relative w-[349px] h-[49px] bg-[url(/image.svg)] bg-[100%_100%]">
-                  <div className="absolute w-[225px] top-[13px] left-14 [font-family:'Inter-Regular',Helvetica] font-normal text-white text-xl text-center tracking-[0] leading-[normal]">
-                    Create Quiz
-                  </div>
-                </div>
-              </div>
-            </div>
+    <div className="flex justify-center w-full">
+      <div className="w-[412px] h-[917px] bg-white">
+        <div className="relative h-[917px] bg-[#c3d5d4]">
+          {/* Header */}
+          <div className="absolute top-[92px] left-1/2 transform -translate-x-1/2 font-bold text-black text-3xl whitespace-nowrap">
+            QUIZ MAKER
           </div>
+
+          {/* Form Container */}
+          <form
+            onSubmit={handleSubmit}
+            className="w-[349px] absolute top-[152px] left-[31px]"
+          >
+            {/* Quiz Name */}
+            <div className="mb-6">
+              <label className="block text-[21px] mb-2">Quiz Name:</label>
+              <input
+                type="text"
+                value={quizName}
+                onChange={handleQuizNameChange}
+                placeholder="Enter Quiz Name"
+                className="w-full h-[49px] bg-[#efefef] rounded-[10px] px-4 py-2"
+                required
+              />
+            </div>
+
+            {/* Questions */}
+            {questions.map((question, index) => (
+              <div key={index} className="mb-6 pb-4 border-b border-gray-200">
+                <div className="mb-4">
+                  <label className="block text-[21px] mb-2">
+                    {index === 0 ? "Add a Question:" : `Question ${index + 1}:`}
+                  </label>
+                  <input
+                    type="text"
+                    value={question.question}
+                    onChange={(e) =>
+                      handleQuestionChange(index, "question", e.target.value)
+                    }
+                    placeholder="Enter a Question"
+                    className="w-full h-[49px] bg-[#efefef] rounded-[10px] px-4 py-2"
+                    required
+                  />
+                </div>
+
+                {/* Option A */}
+                <div className="mb-3">
+                  <label className="block text-[21px] mb-2">Option A:</label>
+                  <input
+                    type="text"
+                    value={question.option_a}
+                    onChange={(e) =>
+                      handleQuestionChange(index, "option_a", e.target.value)
+                    }
+                    placeholder="Enter Option A"
+                    className="w-full h-[49px] bg-[#efefef] rounded-[10px] px-4 py-2"
+                    required
+                  />
+                </div>
+
+                {/* Option B */}
+                <div className="mb-3">
+                  <label className="block text-[21px] mb-2">Option B:</label>
+                  <input
+                    type="text"
+                    value={question.option_b}
+                    onChange={(e) =>
+                      handleQuestionChange(index, "option_b", e.target.value)
+                    }
+                    placeholder="Enter Option B"
+                    className="w-full h-[49px] bg-[#efefef] rounded-[10px] px-4 py-2"
+                    required
+                  />
+                </div>
+
+                {/* Option C */}
+                <div className="mb-3">
+                  <label className="block text-[21px] mb-2">Option C:</label>
+                  <input
+                    type="text"
+                    value={question.option_c}
+                    onChange={(e) =>
+                      handleQuestionChange(index, "option_c", e.target.value)
+                    }
+                    placeholder="Enter Option C"
+                    className="w-full h-[49px] bg-[#efefef] rounded-[10px] px-4 py-2"
+                    required
+                  />
+                </div>
+
+                {/* Option D */}
+                <div className="mb-3">
+                  <label className="block text-[21px] mb-2">Option D:</label>
+                  <input
+                    type="text"
+                    value={question.option_d}
+                    onChange={(e) =>
+                      handleQuestionChange(index, "option_d", e.target.value)
+                    }
+                    placeholder="Enter Option D"
+                    className="w-full h-[49px] bg-[#efefef] rounded-[10px] px-4 py-2"
+                    required
+                  />
+                </div>
+
+                {/* Correct Answer */}
+                <div className="mb-3">
+                  <label className="block text-[21px] mb-2">
+                    Correct Answer:
+                  </label>
+                  <select
+                    value={question.correct_answer}
+                    onChange={(e) =>
+                      handleQuestionChange(
+                        index,
+                        "correct_answer",
+                        e.target.value
+                      )
+                    }
+                    className="w-full h-[49px] bg-[#efefef] rounded-[10px] px-4 py-2"
+                    required
+                  >
+                    <option value="">Select correct answer</option>
+                    <option value="a">A</option>
+                    <option value="b">B</option>
+                    <option value="c">C</option>
+                    <option value="d">D</option>
+                  </select>
+                </div>
+              </div>
+            ))}
+
+            {/* Add Question Button */}
+            <div
+              className="w-full h-[49px] bg-[#efefef] rounded-[10px] mt-4 mb-4 flex justify-center items-center cursor-pointer"
+              onClick={addQuestion}
+            >
+              <span className="text-[42px] font-light">+</span>
+            </div>
+
+            {/* Create Quiz Button */}
+            <button
+              type="submit"
+              className="w-full h-[49px] bg-[#3b82f6] text-white rounded-[10px] text-xl"
+            >
+              Create Quiz
+            </button>
+          </form>
         </div>
       </div>
     </div>
   );
 };
 
-export default QuizMakerPage; // Add this export
+export default QuizMakerPage;

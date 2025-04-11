@@ -1,20 +1,16 @@
 import "./App.css";
-
-// Temporarily import the component directly without routing
+import { Routes, Route } from "react-router-dom";
 import QuizMakerPage from "./pages/QuizMakerPage";
 
-
 function App() {
-
   return (
     <div className="app-container">
-      <QuizMakerPage />
+      <Routes>
+        <Route path="/" element={<QuizMakerPage />} />
+        <Route path="/quiz-maker" element={<QuizMakerPage />} />
+      </Routes>
     </div>
-
-    <Routes>
-      <Route path="/quiz-maker" element={<QuizMakerPage />} />s
-    </Routes>
   );
-};
+}
 
 export default App;
