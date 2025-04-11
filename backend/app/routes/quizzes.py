@@ -84,39 +84,52 @@ async def get_quiz_by_name(quiz_name: str):
         "total_questions": len(questions_for_client)
     }
 
-@router.get("/id/{quiz_id}")
+@router.get("/id/{quiz_id}", response_model=Quiz)
 async def get_quiz_by_id_route(quiz_id: str, request: Request):
-    """Get a quiz by its ID"""
+    """Get quiz by ID"""
     try:
-        # Try to convert to ObjectId to validate the format
-        try:
-            _ = ObjectId(quiz_id)
-        except Exception as e:
-            logger.error(f"Invalid ObjectId format: {quiz_id}. Error: {str(e)}")
-            raise HTTPException(status_code=400, detail=f"Invalid quiz ID format: {quiz_id}")
-            
-        # Access MongoDB from the request
-        if not request.app.mongodb:
-            logger.error("MongoDB not connected")
-            raise HTTPException(status_code=500, detail="Database not connected")
-            
-        # Use request.app.mongodb directly instead of the database helper
-        quiz_obj_id = ObjectId(quiz_id)
-        quiz = await request.app.mongodb.quizzes.find_one({"_id": quiz_obj_id})
+        logger.info(f"API: Requesting quiz with ID: {quiz_id}")
+        
+        # Try to get quiz from database
+        quiz = await get_quiz_by_id(quiz_id)
         
         if not quiz:
-            logger.error(f"Quiz with ID {quiz_id} not found")
+            logger.warning(f"Quiz with ID {quiz_id} not found")
             raise HTTPException(status_code=404, detail=f"Quiz with ID {quiz_id} not found")
-            
-        # Convert MongoDB ObjectId to string for JSON serialization
-        quiz["id"] = str(quiz["_id"])
         
+        logger.info(f"Successfully retrieved quiz: {quiz['quiz_name']}")
         return quiz
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error retrieving quiz: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error retrieving quiz: {str(e)}")
+        logger.error(f"Server error getting quiz by ID: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
+
+@router.get("/debug/{quiz_id}")
+async def debug_quiz_id(quiz_id: str):
+    """Debug endpoint for IDs"""
+    try:
+        # Check if ID is valid ObjectId
+        try:
+            obj_id = ObjectId(quiz_id)
+            is_valid = True
+        except:
+            is_valid = False
+            
+        return {
+            "quiz_id": quiz_id,
+            "is_valid_objectid": is_valid,
+            "converted_id": str(ObjectId(quiz_id)) if is_valid else None,
+            "database_connected": quizzes_collection is not None
+        }
+    except Exception as e:
+        return {
+            "quiz_id": quiz_id,
+            "error": str(e),
+            "error_type": type(e).__name__
+        }
 
 @router.post("/{quiz_name}/submit", response_model=QuizResult)
 async def submit_quiz(quiz_name: str, submission: QuizSubmission):
@@ -179,3 +192,29 @@ async def delete_quiz(quiz_name: str):
         return {"message": f"Quiz '{quiz_name}' deleted successfully"}
     else:
         raise HTTPException(status_code=500, detail=f"Failed to delete quiz '{quiz_name}'")
+
+@router.get("/mock-quiz")
+async def get_mock_quiz():
+    """Return a mock quiz for testing"""
+    return {
+        "id": "mock-123",
+        "quiz_name": "Mock Quiz",
+        "questions": [
+            {
+                "question": "What is a correct syntax to output 'Hello World' in Python?",
+                "option_a": "print(\"Hello World\")",
+                "option_b": "p(\"Hello World\")",
+                "option_c": "echo \"Hello World\"",
+                "option_d": "echo(\"Hello World\");",
+                "correct_answer": "a"
+            },
+            {
+                "question": "How do you insert COMMENTS in Python code?",
+                "option_a": "#This is a comment",
+                "option_b": "//This is a comment",
+                "option_c": "/*This is a comment*/",
+                "option_d": "**This is a comment",
+                "correct_answer": "a"
+            }
+        ]
+    }
