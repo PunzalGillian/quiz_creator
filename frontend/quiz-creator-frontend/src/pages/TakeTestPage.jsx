@@ -1,58 +1,104 @@
-// Frame1.jsx
-import React from "react";
+import React, { useState } from "react";
+import { CheckCircle } from "lucide-react";
 
-const Frame1 = () => (
-  <div className="flex flex-col justify-center items-center w-[412px] h-[917px]">
-    <div className="flex-shrink-0 w-[412px] h-[917px] bg-white">
-      <div className="flex-shrink-0 w-[412px] h-[479px] bg-[#c3d5d4]" />
+const TakeTestPage = ({ className, ...props }) => {
+  // Add state to track selected answer
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
 
-      <div className="w-[23rem] text-black text-center font-['Inter'] text-[2rem] font-bold leading-normal mb-4">
-        What is a correct syntax to output "Hello World" in Python?
-      </div>
+  // Handler for selecting an answer
+  const handleAnswerClick = (answer) => {
+    setSelectedAnswer(answer);
+  };
 
-      {/* Option A */}
-      <div className="flex items-center gap-4 mb-2">
-        <div className="flex-shrink-0 w-[21.75rem] h-[4.375rem] rounded-[1.1875rem] bg-[#efefef] flex items-center px-4">
-          <div className="text-black font-['Inter'] text-[1.375rem] leading-normal">
-            A. print("Hello World")
-          </div>
+  return (
+    <div className={"h-[917px] relative " + className}>
+      <div className="bg-[#ffffff] w-[412px] h-[917px] absolute left-0 top-0 overflow-hidden">
+        {/* Option A */}
+        <div
+          className={`${
+            selectedAnswer === "a" ? "bg-[#1b191d]" : "bg-[#efefef]"
+          } rounded-[19px] w-[348.96px] h-[70px] absolute left-8 top-[504px] cursor-pointer`}
+          onClick={() => handleAnswerClick("a")}
+        ></div>
+        <div
+          className={`${
+            selectedAnswer === "a" ? "text-[#fff3f3]" : "text-[#000000]"
+          } text-left font-['Inter',_sans-serif] text-[22px] font-normal absolute left-[60px] top-[525px] w-[306px] cursor-pointer`}
+          onClick={() => handleAnswerClick("a")}
+        >
+          A. print(&quot;Hello World&quot;)
         </div>
-      </div>
 
-      {/* Option B */}
-      <div className="flex items-center gap-4 mb-2">
-        <div className="flex-shrink-0 w-[21.8125rem] h-[4.375rem] rounded-[1.1875rem] bg-[#efefef] flex items-center px-4">
-          <div className="text-black font-['Inter'] text-[1.375rem] leading-normal">
-            B. p("Hello World")
-          </div>
+        {/* Option B */}
+        <div
+          className={`${
+            selectedAnswer === "b" ? "bg-[#1b191d]" : "bg-[#efefef]"
+          } rounded-[19px] w-[349px] h-[70px] absolute left-[34px] top-[589px] cursor-pointer`}
+          onClick={() => handleAnswerClick("b")}
+        ></div>
+        <div
+          className={`${
+            selectedAnswer === "b" ? "text-[#fff3f3]" : "text-[#000000]"
+          } text-left font-['Inter',_sans-serif] text-[22px] font-normal absolute left-[60px] top-[610px] w-[308px] cursor-pointer`}
+          onClick={() => handleAnswerClick("b")}
+        >
+          B. p(&quot;Hello World&quot;)
         </div>
-      </div>
 
-      {/* Option C */}
-      <div className="flex items-center gap-4 mb-2">
-        <div className="flex-shrink-0 w-[21.875rem] h-[4.375rem] rounded-[1.1875rem] bg-[#efefef] flex items-center px-4">
-          <div className="text-black font-['Inter'] text-[1.375rem] leading-normal">
-            C. echo "Hello World"
-          </div>
+        {/* Option C */}
+        <div
+          className={`${
+            selectedAnswer === "c" ? "bg-[#1b191d]" : "bg-[#efefef]"
+          } rounded-[19px] w-[350px] h-[70px] absolute left-[33px] top-[674px] cursor-pointer`}
+          onClick={() => handleAnswerClick("c")}
+        ></div>
+        <div
+          className={`${
+            selectedAnswer === "c" ? "text-[#fff3f3]" : "text-[#000000]"
+          } text-left font-['Inter',_sans-serif] text-[22px] font-normal absolute left-[60px] top-[695px] w-[308px] cursor-pointer`}
+          onClick={() => handleAnswerClick("c")}
+        >
+          C. echo &quot;Hello World&quot;
         </div>
-      </div>
 
-      {/* Option D */}
-      <div className="flex items-center gap-4 mb-2">
-        <div className="flex-shrink-0 w-[21.875rem] h-[4.375rem] rounded-[1.1875rem] bg-[#1b191d] flex items-center px-4">
-          <div className="text-[#fff3f3] font-['Inter'] text-[1.375rem] leading-normal">
-            D. echo("Hello World");
-          </div>
+        {/* Option D */}
+        <div
+          className={`${
+            selectedAnswer === "d" ? "bg-[#1b191d]" : "bg-[#efefef]"
+          } rounded-[19px] w-[350px] h-[70px] absolute left-[33px] top-[759px] cursor-pointer`}
+          onClick={() => handleAnswerClick("d")}
+        ></div>
+        <div
+          className={`${
+            selectedAnswer === "d" ? "text-[#fff3f3]" : "text-[#000000]"
+          } text-left font-['Inter',_sans-serif] text-[22px] font-normal absolute left-[60px] top-[780px] w-[255px] cursor-pointer`}
+          onClick={() => handleAnswerClick("d")}
+        >
+          D. echo(&quot;Hello World&quot;);
         </div>
-      </div>
 
-      {/* Placeholder for image */}
-      <div
-        className="flex-shrink-0 w-[1.875rem] h-[1.875rem] bg-cover bg-no-repeat"
-        style={{ backgroundImage: "url('<path-to-image>')" }}
-      />
+        {/* Checkmark icon - only show when an option is selected */}
+        {selectedAnswer && (
+          <div
+            className="absolute"
+            style={{
+              left: "338px",
+              top:
+                selectedAnswer === "d"
+                  ? "780px"
+                  : selectedAnswer === "c"
+                  ? "695px"
+                  : selectedAnswer === "b"
+                  ? "610px"
+                  : "525px",
+            }}
+          >
+            <CheckCircle className="text-green-500 w-6 h-6" />
+          </div>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
-export default Frame1;
+export default TakeTestPage;
