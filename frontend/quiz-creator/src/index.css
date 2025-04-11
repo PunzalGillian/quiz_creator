@@ -1,69 +1,160 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+import React, { useState } from "react";
 
-  color-scheme: light dark;
-  color: rgba(0, 0, 0, 0.87);
-  background-color: #242424;
+const QuizMakerPage = () => {
+  const [quizName, setQuizName] = useState("");
+  const [questions, setQuestions] = useState([
+    {
+      question: "",
+      option_a: "",
+      option_b: "",
+      option_c: "",
+      option_d: "",
+      correct_answer: "",
+    },
+  ]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+  const handleInputChange = (index, field, value) => {
+    const updated = [...questions];
+    updated[index][field] = value;
+    setQuestions(updated);
+  };
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
+  const addQuestion = () => {
+    setQuestions([
+      ...questions,
+      {
+        question: "",
+        option_a: "",
+        option_b: "",
+        option_c: "",
+        option_d: "",
+        correct_answer: "",
+      },
+    ]);
+  };
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-  background-color: #ffffff;
-}
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
+    try {
+      const response = await fetch("https://fast-api-quiz-creator.onrender.com/quizzes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quiz_name: quizName, questions }),
+      });
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
+      if (!response.ok) throw new Error("Failed to create quiz");
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-}
+      alert("Quiz created successfully!");
+      setQuizName("");
+      setQuestions([
+        {
+          question: "",
+          option_a: "",
+          option_b: "",
+          option_c: "",
+          option_d: "",
+          correct_answer: "",
+        },
+      ]);
+    } catch (error) {
+      console.error(error);
+      alert("Error creating quiz");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const inputStyle =
+    "w-[349px] h-[49px] bg-[#EFEFEF] rounded-[10px] px-4 focus:outline-none";
+  const labelStyle = "font-medium";
+  const buttonStyle = "w-[349px] h-[49px] rounded-[10px] flex justify-center items-center";
+
+  return (
+    <div className="flex justify-center bg-[#c3d5d4] min-h-screen py-10">
+      <form onSubmit={handleSubmit} className="flex flex-col items-center space-y-6">
+        <h1 className="text-3xl font-bold text-center">QUIZ MAKER</h1>
+
+        <div className="flex flex-col">
+          <label className={labelStyle}>Quiz Name:</label>
+          <input
+            type="text"
+            placeholder="Enter Quiz Name"
+            value={quizName}
+            onChange={(e) => setQuizName(e.target.value)}
+            className={inputStyle}
+            required
+          />
+        </div>
+
+        {questions.map((q, index) => (
+          <div key={index} className="flex flex-col space-y-4">
+            <h2 className="text-lg font-semibold mt-4">Add A Question:</h2>
+
+            <div className="flex flex-col">
+              <label className={labelStyle}>Enter a question:</label>
+              <input
+                type="text"
+                placeholder={`Question ${index + 1}`}
+                value={q.question}
+                onChange={(e) => handleInputChange(index, "question", e.target.value)}
+                className={inputStyle}
+                required
+              />
+            </div>
+
+            {["a", "b", "c", "d"].map((opt) => (
+              <div className="flex flex-col" key={opt}>
+                <label className={labelStyle}>{`Option ${opt.toUpperCase()}:`}</label>
+                <input
+                  type="text"
+                  placeholder={`Enter option ${opt.toUpperCase()}`}
+                  value={q[`option_${opt}`]}
+                  onChange={(e) => handleInputChange(index, `option_${opt}`, e.target.value)}
+                  className={inputStyle}
+                  required
+                />
+              </div>
+            ))}
+
+            <div className="flex flex-col">
+              <label className={labelStyle}>Correct Answer:</label>
+              <select
+                value={q.correct_answer}
+                onChange={(e) => handleInputChange(index, "correct_answer", e.target.value)}
+                className={inputStyle}
+                required
+              >
+                <option value="">Select correct answer</option>
+                <option value="a">A</option>
+                <option value="b">B</option>
+                <option value="c">C</option>
+                <option value="d">D</option>
+              </select>
+            </div>
+          </div>
+        ))}
+
+        <button
+          type="button"
+          onClick={addQuestion}
+          className={`${buttonStyle} bg-[#EFEFEF] text-3xl`}
+        >
+          +
+        </button>
+
+        <button
+          type="submit"
+          className={`${buttonStyle} bg-[#1B191D] text-white text-xl`}
+          disabled={isLoading}
+        >
+          {isLoading ? "Creating..." : "Create Quiz"}
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default QuizMakerPage;
