@@ -1,5 +1,10 @@
 import React, { useState } from "react";
 
+const apiUrl =
+  window.ENV?.VITE_API_URL ||
+  import.meta.env.VITE_API_URL ||
+  "https://fast-api-quiz-creator.onrender.com";
+
 const QuizMakerPage = () => {
   const [quizName, setQuizName] = useState("");
   const [questions, setQuestions] = useState([
@@ -40,7 +45,7 @@ const QuizMakerPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/quizzes`, {
+      const response = await fetch(`${apiUrl}/quizzes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ quiz_name: quizName, questions }),

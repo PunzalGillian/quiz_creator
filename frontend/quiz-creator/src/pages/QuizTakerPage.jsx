@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
 
+const apiUrl =
+  window.ENV?.VITE_API_URL ||
+  import.meta.env.VITE_API_URL ||
+  "https://fast-api-quiz-creator.onrender.com";
+
 const QuizTakerPage = () => {
   const [quizzes, setQuizzes] = useState([]);
   const [currentQuiz, setCurrentQuiz] = useState(null);
