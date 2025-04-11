@@ -40,14 +40,11 @@ const QuizMakerPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        "https://fast-api-quiz-creator.onrender.com/quizzes",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ quiz_name: quizName, questions }),
-        }
-      );
+      const response = await fetch("/api/quizzes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quiz_name: quizName, questions }),
+      });
 
       if (!response.ok) throw new Error("Failed to create quiz");
 
