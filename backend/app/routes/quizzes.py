@@ -23,7 +23,8 @@ async def list_quizzes():
     return [
         {
             "quiz_name": quiz["quiz_name"],
-            "total_questions": len(quiz.get("questions", [])) 
+            "id": str(quiz["_id"]) if "_id" in quiz else None,
+            "total_questions": len(quiz.get("questions", []))
         }
         for quiz in quizzes if quiz
     ]

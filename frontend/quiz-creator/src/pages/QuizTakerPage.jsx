@@ -17,7 +17,7 @@ const QuizTakerPage = () => {
       setError("");
 
       try {
-        // Use the proxy defined in vite.config.js
+        // First get quiz list (which returns basic info)
         const response = await fetch("/api/quizzes");
 
         if (!response.ok) {
@@ -27,23 +27,19 @@ const QuizTakerPage = () => {
         let data = await response.json();
         console.log("Raw quiz data:", data);
 
-        // Normalize data structure
-        if (!Array.isArray(data)) {
-          if (data.quizzes && Array.isArray(data.quizzes)) {
-            data = data.quizzes;
-          } else {
-            data = [data]; // If it's a single quiz object, wrap it in array
+        // Make sure each quiz has an ID
+        const processedQuizzes = data.map((quiz) => {
+          // If the quiz has _id from MongoDB but no id field
+          if (quiz._id && !quiz.id) {
+            return {
+              ...quiz,
+              id: quiz._id,
+            };
           }
-        }
+          return quiz;
+        });
 
-        // Ensure each quiz has a questions property that's an array
-        const normalizedQuizzes = data.map((quiz) => ({
-          ...quiz,
-          questions: Array.isArray(quiz.questions) ? quiz.questions : [],
-        }));
-
-        console.log("Normalized quizzes:", normalizedQuizzes);
-        setQuizzes(normalizedQuizzes);
+        setQuizzes(processedQuizzes);
       } catch (err) {
         console.error("Error fetching quizzes:", err);
         setError("Failed to load quizzes. Please try again later.");
@@ -62,16 +58,8 @@ const QuizTakerPage = () => {
     try {
       console.log(`Fetching quiz with ID: ${quizId}`);
 
-      // Direct API call for troubleshooting
-      const apiUrl = `https://fast-api-quiz-creator.onrender.com/quizzes/${quizId}`;
-      console.log(`API URL: ${apiUrl}`);
-
-      // For fetching by ID
+      // Try the ID route
       const response = await fetch(`/api/quizzes/id/${quizId}`);
-
-      // For fetching by name
-      const responseByName = await fetch(`/api/quizzes/name/${quizName}`);
-
       console.log(`Response status: ${response.status}`);
 
       if (!response.ok) {
@@ -81,43 +69,9 @@ const QuizTakerPage = () => {
       let data = await response.json();
       console.log("Full quiz data:", data);
 
-      // If the API returns the quiz with an ID property instead of directly
-      if (data && data.id === quizId) {
-        // We have the correct quiz object
-
-        // Ensure questions property exists
-        if (!data.questions) {
-          console.log("Quiz has no questions property, adding empty array");
-          data.questions = [];
-        } else if (!Array.isArray(data.questions)) {
-          console.log("Questions is not an array, converting");
-          data.questions = [data.questions];
-        }
-      } else if (Array.isArray(data)) {
-        // API might be returning an array of quizzes, find the one we want
-        console.log("Received array response, searching for matching quiz");
-        const matchingQuiz = data.find((q) => q.id == quizId);
-        if (matchingQuiz) {
-          data = matchingQuiz;
-          // Ensure questions property exists
-          if (!data.questions) {
-            data.questions = [];
-          } else if (!Array.isArray(data.questions)) {
-            data.questions = [data.questions];
-          }
-        } else {
-          throw new Error("Quiz not found in response");
-        }
-      } else {
-        console.error("Unexpected API response format:", data);
-        throw new Error("Unexpected API response format");
-      }
-
-      if (data.questions && data.questions.length === 0) {
-        console.log("Quiz has no questions");
-        setError("This quiz doesn't have any questions yet.");
-      } else {
-        console.log(`Quiz has ${data.questions.length} questions`);
+      // Process data as before
+      if (!data.questions) {
+        data.questions = [];
       }
 
       setCurrentQuiz(data);
@@ -209,19 +163,21 @@ const QuizTakerPage = () => {
                 <div
                   key={quiz.id || Math.random().toString()}
                   className="p-4 bg-[#efefef] rounded-lg cursor-pointer hover:bg-gray-200"
-                  onClick={() => handleSelectQuiz(quiz.id)}
                 >
                   <h3 className="text-lg font-medium">{quiz.quiz_name}</h3>
                   <p className="text-sm text-gray-600">
-                    {quiz.questions && Array.isArray(quiz.questions)
-                      ? `${quiz.questions.length} questions`
-                      : "Questions will load when selected"}
+                    {quiz.total_questions || 0} questions
                   </p>
                   <button
                     className="mt-2 px-4 py-1 bg-[#1B191D] text-white rounded-md text-sm"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleSelectQuiz(quiz.id);
+                      if (quiz.id) {
+                        handleSelectQuiz(quiz.id);
+                      } else {
+                        console.error("Quiz has no ID");
+                        setError("This quiz cannot be selected (missing ID)");
+                      }
                     }}
                   >
                     Start Quiz

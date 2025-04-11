@@ -46,11 +46,13 @@ except Exception as e:
 # Database helper functions
 async def get_all_quizzes():
     """Get all quizzes from the database"""
-    cursor = quizzes_collection.find({})
-    quizzes = []
-    async for document in cursor:
-        document["id"] = str(document["_id"])
-        quizzes.append(document)
+    quizzes = await db["quizzes"].find().to_list(100)
+    
+    # Convert _id to string id for each quiz
+    for quiz in quizzes:
+        if "_id" in quiz:
+            quiz["id"] = str(quiz["_id"])
+    
     return quizzes
 
 async def get_quiz(quiz_name):
