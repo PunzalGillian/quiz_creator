@@ -51,35 +51,6 @@ const QuizTakerPage = () => {
     fetchQuizzes();
   }, []);
 
-  const loadMockQuiz = (quizId, quizName) => {
-    setCurrentQuiz({
-      id: quizId,
-      quiz_name: quizName || "Practice Quiz",
-      questions: [
-        {
-          question:
-            "What is a correct syntax to output 'Hello World' in Python?",
-          option_a: 'print("Hello World")',
-          option_b: 'p("Hello World")',
-          option_c: 'echo "Hello World"',
-          option_d: 'echo("Hello World");',
-          correct_answer: "a",
-        },
-        {
-          question: "How do you insert COMMENTS in Python code?",
-          option_a: "#This is a comment",
-          option_b: "//This is a comment",
-          option_c: "/*This is a comment*/",
-          option_d: "**This is a comment",
-          correct_answer: "a",
-        },
-      ],
-    });
-    setCurrentQuestionIndex(0);
-    setSelectedAnswers({});
-    setShowResults(false);
-  };
-
   const handleSelectQuiz = async (quizId) => {
     if (!quizId) {
       setError("Cannot load quiz: Missing quiz ID");
@@ -92,36 +63,16 @@ const QuizTakerPage = () => {
     try {
       console.log(`Fetching quiz with ID: ${quizId}`);
 
-      // Try the mock endpoint first for testing
-      let response;
-      let usedMockEndpoint = false;
-
-      // Try with real endpoint
-      response = await fetch(`/api/quizzes/id/${quizId}`);
+      // Fetch the quiz with the selected ID
+      const response = await fetch(`/api/quizzes/id/${quizId}`);
       console.log(`Response status: ${response.status}`);
 
-      // If that fails, try the mock endpoint
       if (!response.ok) {
-        console.log("Trying mock endpoint as fallback");
-        usedMockEndpoint = true;
-        response = await fetch(`/api/quizzes/mock-quiz`);
-
-        if (!response.ok) {
-          // If even the mock fails, use hardcoded data
-          console.log("Mock endpoint failed, using hardcoded data");
-          loadMockQuiz(quizId, "Demo Quiz (Mock)");
-          setIsLoading(false);
-          return;
-        }
+        throw new Error(`Failed to fetch quiz: ${response.status}`);
       }
 
       let data = await response.json();
       console.log("Full quiz data:", data);
-
-      if (usedMockEndpoint) {
-        console.log("Using mock quiz data");
-        data.id = quizId; // Set the ID from the original request
-      }
 
       if (!data.questions) {
         data.questions = [];
@@ -133,8 +84,7 @@ const QuizTakerPage = () => {
       setShowResults(false);
     } catch (err) {
       console.error("Error fetching quiz details:", err);
-      setError("Failed to load quiz details. Using demo quiz instead.");
-      loadMockQuiz(quizId || "fallback-id", "Fallback Quiz");
+      setError("Failed to load quiz details. Please try again later.");
     } finally {
       setIsLoading(false);
     }
@@ -228,12 +178,6 @@ const QuizTakerPage = () => {
                       onClick={() => handleSelectQuiz(quiz.id)}
                     >
                       Start Quiz
-                    </button>
-                    <button
-                      className="px-4 py-1 bg-gray-500 text-white rounded-md text-sm"
-                      onClick={() => loadMockQuiz(quiz.id, quiz.quiz_name)}
-                    >
-                      Use Demo Version
                     </button>
                   </div>
                 </div>
