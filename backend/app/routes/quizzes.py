@@ -108,7 +108,7 @@ async def get_quiz_by_id_route(quiz_id: str, request: Request):
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
 @router.get("/debug/{quiz_id}")
-async def debug_quiz_id(quiz_id: str):
+async def debug_quiz_id(quiz_id: str, request: Request):
     """Debug endpoint for IDs"""
     try:
         # Check if ID is valid ObjectId
@@ -118,11 +118,15 @@ async def debug_quiz_id(quiz_id: str):
         except:
             is_valid = False
             
+        # Use request.app.mongodb instead of quizzes_collection
+        db_connected = request.app.mongodb is not None
+            
         return {
             "quiz_id": quiz_id,
             "is_valid_objectid": is_valid,
             "converted_id": str(ObjectId(quiz_id)) if is_valid else None,
-            "database_connected": quizzes_collection is not None
+            "database_connected": db_connected,
+            "app_has_mongodb": hasattr(request.app, "mongodb")
         }
     except Exception as e:
         return {
