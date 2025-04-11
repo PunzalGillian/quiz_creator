@@ -1,7 +1,7 @@
 import os
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from typing import List
-from ..models import QuizCreate, QuizInfo, QuizSubmission, QuizResult
+from ..models import QuizCreate, QuizInfo, QuizSubmission, QuizResult, Quiz
 from ..database import (
     get_all_quizzes, 
     get_quiz, 
@@ -75,6 +75,30 @@ async def get_quiz_by_name(quiz_name: str):
         "questions": questions_for_client,
         "total_questions": len(questions_for_client)
     }
+
+# Add a route to get quiz by ID
+@router.get("/{quiz_id}", response_model=Quiz)
+async def get_quiz_by_id(
+    quiz_id: str,
+    request: Request
+):
+    try:
+        # Convert string ID to ObjectId if using MongoDB's ObjectId
+        from bson import ObjectId
+        quiz_obj_id = ObjectId(quiz_id)
+        
+        # Find quiz by ID
+        quiz = await request.app.mongodb.quizzes.find_one({"_id": quiz_obj_id})
+        
+        if quiz is None:
+            raise HTTPException(status_code=404, detail=f"Quiz with ID {quiz_id} not found")
+            
+        # Convert MongoDB ObjectId to string for JSON serialization
+        quiz["id"] = str(quiz["_id"])
+        
+        return quiz
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error retrieving quiz: {str(e)}")
 
 @router.post("/{quiz_name}/submit", response_model=QuizResult)
 async def submit_quiz(quiz_name: str, submission: QuizSubmission):
