@@ -46,7 +46,7 @@ except Exception as e:
 # Database helper functions
 async def get_all_quizzes():
     """Get all quizzes from the database"""
-    quizzes = await db["quizzes"].find().to_list(100)
+    quizzes = await database["quizzes"].find().to_list(100)
     
     # Convert _id to string id for each quiz
     for quiz in quizzes:

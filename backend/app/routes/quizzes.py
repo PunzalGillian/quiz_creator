@@ -78,7 +78,6 @@ async def get_quiz_by_name(quiz_name: str):
         "total_questions": len(questions_for_client)
     }
 
-# Option 1: Use different path parameters
 @router.get("/id/{quiz_id}")
 async def get_quiz_by_id(quiz_id: str, request: Request):
     try:
