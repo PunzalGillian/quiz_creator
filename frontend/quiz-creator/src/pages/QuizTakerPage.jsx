@@ -153,7 +153,7 @@ const QuizTakerPage = () => {
   if (!currentQuiz) {
     return (
       <div className="flex flex-col items-center w-full min-h-screen bg-[#c3d5d4]">
-        <div className="w-full max-w-sm bg-white min-h-[917px] flex flex-col items-center p-6">
+        <div className="w-full max-w-sm bg-white min-h-[600px] flex flex-col items-center p-6">
           <h1 className="text-[30px] font-bold mt-6 text-center">QUIZ TAKER</h1>
 
           {error && (
@@ -210,7 +210,7 @@ const QuizTakerPage = () => {
   ) {
     return (
       <div className="flex flex-col items-center w-full min-h-screen bg-[#c3d5d4]">
-        <div className="w-full max-w-sm bg-white min-h-[400px] flex flex-col items-center p-6">
+        <div className="w-full max-w-sm bg-white min-h-[600px] flex flex-col items-center p-6">
           <h1 className="text-[30px] font-bold mt-6 text-center">QUIZ TAKER</h1>
           <div className="mt-10 text-center">
             <p className="text-xl font-bold mb-2">{currentQuiz.quiz_name}</p>
@@ -235,7 +235,7 @@ const QuizTakerPage = () => {
   if (!currentQuestion) {
     return (
       <div className="flex flex-col items-center w-full min-h-screen bg-[#c3d5d4]">
-        <div className="w-full max-w-sm bg-white min-h-[400px] flex flex-col items-center p-6">
+        <div className="w-full max-w-sm bg-white min-h-[600px] flex flex-col items-center p-6">
           <h1 className="text-[30px] font-bold mt-6 text-center">QUIZ TAKER</h1>
           <div className="mt-10 text-center">
             <p className="text-red-600 mb-6">Unable to load question.</p>
@@ -258,7 +258,7 @@ const QuizTakerPage = () => {
 
     return (
       <div className="flex flex-col items-center w-full min-h-screen bg-[#c3d5d4]">
-        <div className="w-full max-w-sm bg-white min-h-[400px] flex flex-col items-center p-6">
+        <div className="w-full max-w-sm bg-white min-h-[600px] flex flex-col items-center p-6">
           <h1 className="text-[30px] font-bold mt-6 text-center">
             QUIZ RESULTS
           </h1>
@@ -348,7 +348,7 @@ const QuizTakerPage = () => {
 
   return (
     <div className="flex flex-col items-center w-full min-h-screen">
-      <div className="w-full max-w-sm bg-white min-h-[917px] flex flex-col">
+      <div className="w-full max-w-sm bg-white min-h-[600px] flex flex-col">
         {/* Question section */}
         <div className="bg-[#c3d5d4] h-[400px] flex items-center justify-center p-6">
           <p className="text-3xl font-bold text-center">
