@@ -22,8 +22,11 @@ const QuizTakerPage = () => {
       setError("");
 
       try {
+        console.log("Fetching quizzes from:", apiUrl);
+
         // First get quiz list (which returns basic info)
         const response = await fetch("/api/quizzes");
+        console.log("Response status:", response.status);
 
         if (!response.ok) {
           throw new Error(`Failed to fetch quizzes: ${response.status}`);
@@ -67,9 +70,10 @@ const QuizTakerPage = () => {
 
     try {
       console.log(`Fetching quiz with ID: ${quizId}`);
+      console.log(`Full URL: ${apiUrl}/quizzes/id/${quizId}`);
 
       // Fetch the quiz with the selected ID
-      const response = await fetch(`/api/quizzes/id/${quizId}`);
+      const response = await fetch(`${apiUrl}/quizzes/id/${quizId}`);
       console.log(`Response status: ${response.status}`);
 
       if (!response.ok) {
