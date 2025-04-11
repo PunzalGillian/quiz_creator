@@ -1,5 +1,5 @@
-from pydantic import BaseModel
 from typing import List, Dict, Optional
+from pydantic import BaseModel
 
 class Question(BaseModel):
     question: str
@@ -34,4 +34,27 @@ class QuizResult(BaseModel):
 
 class QuizInfo(BaseModel):
     quiz_name: str
-    total_questions: int
+    id: Optional[str] = None
+    total_questions: int = 0
+
+class Quiz(BaseModel):
+    id: Optional[str] = None
+    quiz_name: str
+    questions: List[dict]  # Or define a proper Question model
+    
+    class Config:
+        schema_extra = {
+            "example": {
+                "quiz_name": "Python Basics",
+                "questions": [
+                    {
+                        "question": "What is Python?",
+                        "option_a": "A programming language",
+                        "option_b": "A snake",
+                        "option_c": "A database",
+                        "option_d": "An operating system",
+                        "correct_answer": "a"
+                    }
+                ]
+            }
+        }
