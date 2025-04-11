@@ -1,4 +1,5 @@
 import os
+import logging
 from fastapi import APIRouter, HTTPException, Request
 from typing import List
 from ..models import QuizCreate, QuizInfo, QuizSubmission, QuizResult, Quiz
@@ -6,9 +7,14 @@ from ..database import (
     get_all_quizzes, 
     get_quiz, 
     save_quiz_to_db,
-    delete_quiz_from_db
+    delete_quiz_from_db,
+    get_quiz_by_id,  # Add this import
+    database  # Import database directly
 )
 from bson import ObjectId
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/quizzes",
@@ -79,27 +85,25 @@ async def get_quiz_by_name(quiz_name: str):
     }
 
 @router.get("/id/{quiz_id}")
-async def get_quiz_by_id(quiz_id: str, request: Request):
+async def get_quiz_by_id_route(quiz_id: str):
     try:
-        # Try to convert to ObjectId
+        # Try to convert to ObjectId to validate the format
         try:
-            quiz_obj_id = ObjectId(quiz_id)
+            _ = ObjectId(quiz_id)
         except Exception:
             raise HTTPException(status_code=400, detail="Invalid quiz ID format")
+            
+        # Use the function from database.py
+        quiz = await get_quiz_by_id(quiz_id)
         
-        # Find quiz by ID
-        quiz = await request.app.mongodb.quizzes.find_one({"_id": quiz_obj_id})
-        
-        if quiz is None:
+        if not quiz:
             raise HTTPException(status_code=404, detail=f"Quiz with ID {quiz_id} not found")
             
-        # Convert MongoDB ObjectId to string for JSON serialization
-        quiz["id"] = str(quiz["_id"])
-        
         return quiz
     except HTTPException:
         raise
     except Exception as e:
+        logger.error(f"Error retrieving quiz: {e}")
         raise HTTPException(status_code=500, detail=f"Error retrieving quiz: {str(e)}")
 
 @router.post("/{quiz_name}/submit", response_model=QuizResult)

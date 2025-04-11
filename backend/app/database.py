@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 import logging
 import sys
+from bson import ObjectId
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -46,13 +47,11 @@ except Exception as e:
 # Database helper functions
 async def get_all_quizzes():
     """Get all quizzes from the database"""
-    quizzes = await database["quizzes"].find().to_list(100)
-    
-    # Convert _id to string id for each quiz
-    for quiz in quizzes:
-        if "_id" in quiz:
-            quiz["id"] = str(quiz["_id"])
-    
+    cursor = quizzes_collection.find({})
+    quizzes = []
+    async for document in cursor:
+        document["id"] = str(document["_id"])
+        quizzes.append(document)
     return quizzes
 
 async def get_quiz(quiz_name):
@@ -71,3 +70,15 @@ async def delete_quiz_from_db(quiz_name):
     """Delete a quiz by name"""
     result = await quizzes_collection.delete_one({"quiz_name": quiz_name})
     return result.deleted_count > 0
+
+async def get_quiz_by_id(quiz_id):
+    """Get a quiz by ID"""
+    try:
+        quiz_obj_id = ObjectId(quiz_id)
+        quiz = await quizzes_collection.find_one({"_id": quiz_obj_id})
+        if quiz:
+            quiz["id"] = str(quiz["_id"])
+        return quiz
+    except Exception as e:
+        logger.error(f"Error getting quiz by ID {quiz_id}: {e}")
+        return None
