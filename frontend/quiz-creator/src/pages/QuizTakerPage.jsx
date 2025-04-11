@@ -66,7 +66,12 @@ const QuizTakerPage = () => {
       const apiUrl = `https://fast-api-quiz-creator.onrender.com/quizzes/${quizId}`;
       console.log(`API URL: ${apiUrl}`);
 
-      const response = await fetch(`/api/quizzes/${quizId}`);
+      // For fetching by ID
+      const response = await fetch(`/api/quizzes/id/${quizId}`);
+
+      // For fetching by name
+      const responseByName = await fetch(`/api/quizzes/name/${quizName}`);
+
       console.log(`Response status: ${response.status}`);
 
       if (!response.ok) {

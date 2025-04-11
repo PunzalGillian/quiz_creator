@@ -47,7 +47,9 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173",  # Add your frontend URL
+        "http://localhost:5173",  
+        "https://your-deployed-frontend.com",  # Add any other URLs
+        "*"  # Or use this during development to allow all origins
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -63,7 +65,8 @@ async def root():
         "message": "Quiz API is running with MongoDB",
         "endpoints": {
             "GET /quizzes": "List all available quizzes",
-            "GET /quizzes/{quiz_name}": "Get quiz details",
+            "GET /quizzes/name/{quiz_name}": "Get quiz details by name",
+            "GET /quizzes/id/{quiz_id}": "Get quiz details by ID",
             "POST /quizzes": "Create a new quiz",
             "POST /quizzes/{quiz_name}/submit": "Submit answers and get results",
             "DELETE /quizzes/{quiz_name}": "Delete a quiz"

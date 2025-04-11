@@ -55,7 +55,8 @@ async def create_quiz(quiz: QuizCreate):
         "id": str(inserted_id)
     }
 
-@router.get("/{quiz_name}")
+# Option 1: Use different path parameters
+@router.get("/name/{quiz_name}")
 async def get_quiz_by_name(quiz_name: str):
     """Get a specific quiz (without correct answers)"""
     quiz = await get_quiz(quiz_name)
@@ -76,16 +77,15 @@ async def get_quiz_by_name(quiz_name: str):
         "total_questions": len(questions_for_client)
     }
 
-# Add a route to get quiz by ID
-@router.get("/{quiz_id}", response_model=Quiz)
-async def get_quiz_by_id(
-    quiz_id: str,
-    request: Request
-):
+# Option 1: Use different path parameters
+@router.get("/id/{quiz_id}")
+async def get_quiz_by_id(quiz_id: str, request: Request):
     try:
-        # Convert string ID to ObjectId if using MongoDB's ObjectId
-        from bson import ObjectId
-        quiz_obj_id = ObjectId(quiz_id)
+        # Try to convert to ObjectId
+        try:
+            quiz_obj_id = ObjectId(quiz_id)
+        except Exception:
+            raise HTTPException(status_code=400, detail="Invalid quiz ID format")
         
         # Find quiz by ID
         quiz = await request.app.mongodb.quizzes.find_one({"_id": quiz_obj_id})
@@ -97,6 +97,8 @@ async def get_quiz_by_id(
         quiz["id"] = str(quiz["_id"])
         
         return quiz
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error retrieving quiz: {str(e)}")
 
