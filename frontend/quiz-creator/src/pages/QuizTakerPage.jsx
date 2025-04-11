@@ -103,7 +103,9 @@ const QuizTakerPage = () => {
     if (currentQuestionIndex < currentQuiz.questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      calculateScore();
+      // Calculate the score when the quiz is finished
+      const finalScore = calculateScore();
+      setScore(finalScore);
       setShowResults(true);
     }
   };
@@ -249,8 +251,100 @@ const QuizTakerPage = () => {
     );
   }
 
-  // Rest of your component for showing questions and results...
-  // (keep your existing code for showing questions and results)
+  // Show quiz results if completed
+  if (showResults) {
+    const totalQuestions = currentQuiz.questions.length;
+    const percentage = Math.round((score / totalQuestions) * 100);
+
+    return (
+      <div className="flex flex-col items-center w-full min-h-screen bg-[#c3d5d4]">
+        <div className="w-full max-w-sm bg-white min-h-[400px] flex flex-col items-center p-6">
+          <h1 className="text-[30px] font-bold mt-6 text-center">
+            QUIZ RESULTS
+          </h1>
+
+          <div className="mt-6 w-full">
+            <h2 className="text-xl font-semibold text-center mb-4">
+              {currentQuiz.quiz_name}
+            </h2>
+
+            <div className="bg-[#f8f8f8] p-6 rounded-lg mb-6">
+              <div className="flex justify-between mb-2">
+                <span>Score:</span>
+                <span className="font-bold">
+                  {score} / {totalQuestions}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Percentage:</span>
+                <span className="font-bold">{percentage}%</span>
+              </div>
+
+              <div className="mt-4 h-4 w-full bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className={`h-full ${
+                    percentage >= 70
+                      ? "bg-green-500"
+                      : percentage >= 40
+                      ? "bg-yellow-500"
+                      : "bg-red-500"
+                  }`}
+                  style={{ width: `${percentage}%` }}
+                ></div>
+              </div>
+            </div>
+
+            <h3 className="font-medium mb-3">Question Summary:</h3>
+            <div className="space-y-3 mb-6">
+              {currentQuiz.questions.map((question, index) => {
+                const userAnswer = selectedAnswers[index] || "-";
+                const correctAnswer = question.correct_answer;
+                const isCorrect = userAnswer === correctAnswer;
+
+                return (
+                  <div
+                    key={index}
+                    className={`p-3 rounded-md ${
+                      isCorrect ? "bg-green-100" : "bg-red-100"
+                    }`}
+                  >
+                    <p className="font-medium mb-1">
+                      {index + 1}. {question.question}
+                    </p>
+                    <div className="flex justify-between text-sm">
+                      <span>Your answer: {userAnswer.toUpperCase()}</span>
+                      {!isCorrect && (
+                        <span>Correct: {correctAnswer.toUpperCase()}</span>
+                      )}
+                      <span>{isCorrect ? "✓" : "✗"}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="flex justify-center mt-6 space-x-4">
+              <button
+                className="px-6 py-2 bg-[#1B191D] text-white rounded-lg"
+                onClick={resetQuiz}
+              >
+                Back to Quiz List
+              </button>
+              <button
+                className="px-6 py-2 bg-gray-500 text-white rounded-lg"
+                onClick={() => {
+                  setCurrentQuestionIndex(0);
+                  setShowResults(false);
+                }}
+              >
+                Review Questions
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center w-full min-h-screen">
